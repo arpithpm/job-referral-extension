@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Job Referral Assistant</h2>
+        
+        <form id="referralForm">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="location">Location (Country Code):</label>
+                <input type="text" id="location" name="location" placeholder="e.g., US, UK, CA" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="jobSearchTerm">Job Search Terms:</label>
+                <input type="text" id="jobSearchTerm" name="jobSearchTerm" placeholder="e.g., Java OR Developer OR Python">
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" id="saveBtn">Save Details</button>
+                <button type="button" id="referBtn">Refer to Current Job</button>
+                <button type="button" id="autoReferBtn">Auto-Refer All Matching Jobs</button>
+                <button type="button" id="clearBtn">Clear Form</button>
+            </div>
+        </form>
+        
+        <div id="status" class="status-message"></div>
+        
+        <div class="saved-contacts">
+            <h3>Saved Contacts</h3>
+            <div id="contactsList"></div>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>
