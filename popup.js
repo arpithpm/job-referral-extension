@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveBtn = document.getElementById('saveBtn');
     const referBtn = document.getElementById('referBtn');
     const autoReferBtn = document.getElementById('autoReferBtn');
+    const loadAllJobsBtn = document.getElementById('loadAllJobsBtn');
     const clearBtn = document.getElementById('clearBtn');
     const statusDiv = document.getElementById('status');
     const contactsList = document.getElementById('contactsList');
@@ -45,6 +46,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     autoReferBtn.addEventListener('click', function() {
         autoReferAllMatchingJobs();
+    });
+
+    loadAllJobsBtn.addEventListener('click', function() {
+        loadAllJobsAndRefer();
     });
 
     clearBtn.addEventListener('click', function() {
@@ -271,6 +276,60 @@ document.addEventListener('DOMContentLoaded', function() {
                     showStatus(message, 'success');
                 } else {
                     const errorMsg = response && response.error ? response.error : 'No matching jobs found or unable to process referrals';
+                    showStatus(errorMsg, 'error');
+                }
+            });
+        });
+    }
+
+    function loadAllJobsAndRefer() {
+        console.log('Load all jobs button clicked');
+        
+        const firstName = firstNameInput.value.trim();
+        const lastName = lastNameInput.value.trim();
+        const email = emailInput.value.trim();
+        const location = locationInput.value.trim().toUpperCase();
+        const jobSearchTerm = jobSearchTermInput.value.trim();
+
+        console.log('Form data:', { firstName, lastName, email, location, jobSearchTerm });
+
+        if (!firstName || !lastName || !email || !location) {
+            showStatus('Please fill in all required fields before loading all jobs', 'error');
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            showStatus('Please enter a valid email address', 'error');
+            return;
+        }
+
+        showStatus('Loading all available jobs, please wait...', 'success');
+
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            console.log('Current tab:', tabs[0]);
+            
+            const referralData = {
+                firstName,
+                lastName,
+                email,
+                location,
+                jobSearchTerm,
+                action: 'loadAllJobsAndRefer'
+            };
+
+            console.log('Sending message to load all jobs:', referralData);
+
+            chrome.tabs.sendMessage(tabs[0].id, referralData, function(response) {
+                console.log('Response from content script:', response);
+                console.log('Runtime error:', chrome.runtime.lastError);
+                
+                if (chrome.runtime.lastError) {
+                    showStatus(`Error: ${chrome.runtime.lastError.message}. Please navigate to your employee portal job page.`, 'error');
+                } else if (response && response.success) {
+                    const message = response.message || `Loaded all jobs and processed ${response.referralCount} referrals!`;
+                    showStatus(message, 'success');
+                } else {
+                    const errorMsg = response && response.error ? response.error : 'Failed to load all jobs or process referrals';
                     showStatus(errorMsg, 'error');
                 }
             });

@@ -95,6 +95,15 @@ button {
     background-color: #e76b07;
 }
 
+#loadAllJobsBtn {
+    background-color: #6f42c1;
+    color: white;
+}
+
+#loadAllJobsBtn:hover {
+    background-color: #5a359b;
+}
+
 #clearBtn {
     background-color: #6c757d;
     color: white;
