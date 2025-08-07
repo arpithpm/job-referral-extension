@@ -231,16 +231,56 @@ async function autoReferMatchingJobs(data) {
         
         console.log(`Found ${matchingJobs.length} matching jobs`);
         
-        // For debugging: just return the matching jobs without actually processing referrals
-        matchingJobs.forEach((job, index) => {
-            console.log(`Matching job ${index + 1}: ${job.jobTitle}`);
-        });
+        if (matchingJobs.length === 0) {
+            return { success: true, referralCount: 0, message: 'No matching jobs found' };
+        }
         
-        return { 
-            success: true, 
-            referralCount: matchingJobs.length,
-            message: `Found ${matchingJobs.length} matching jobs (debug mode - not actually processing referrals yet)`
-        };
+        let referralCount = 0;
+        
+        // Process referrals with delay to avoid overwhelming the system
+        for (const job of matchingJobs) {
+            try {
+                console.log(`Processing referral for: ${job.jobTitle}`);
+                
+                // Click the refer button
+                job.referButton.click();
+                console.log('Clicked refer button, waiting for modal...');
+                
+                // Wait for modal to appear
+                await waitForElement('.mat-mdc-dialog-surface', 5000);
+                console.log('Modal appeared, filling form...');
+                
+                // Fill the referral form
+                const modalFilled = await fillReferralModal(data);
+                
+                if (modalFilled) {
+                    referralCount++;
+                    console.log(`✅ Successfully referred to: ${job.jobTitle}`);
+                    // Wait before processing next job
+                    await sleep(3000);
+                } else {
+                    console.log(`❌ Failed to fill referral form for: ${job.jobTitle}`);
+                    // Close modal if it failed to fill
+                    const closeButton = document.querySelector('.modal-close app-icon[name="close"]');
+                    if (closeButton) {
+                        closeButton.click();
+                        console.log('Closed modal due to form fill failure');
+                    }
+                    await sleep(1000);
+                }
+            } catch (error) {
+                console.error(`Error processing job referral for ${job.jobTitle}:`, error);
+                // Try to close any open modal
+                const closeButton = document.querySelector('.modal-close app-icon[name="close"]');
+                if (closeButton) {
+                    closeButton.click();
+                    console.log('Closed modal due to error');
+                }
+                await sleep(1000);
+            }
+        }
+        
+        return { success: true, referralCount: referralCount, message: `Successfully processed ${referralCount} referrals out of ${matchingJobs.length} matching jobs` };
         
     } catch (error) {
         console.error('Job Referral Extension - Error in auto-referral:', error);

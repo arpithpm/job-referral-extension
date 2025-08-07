@@ -267,9 +267,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (chrome.runtime.lastError) {
                     showStatus(`Error: ${chrome.runtime.lastError.message}. Please navigate to your employee portal job page.`, 'error');
                 } else if (response && response.success) {
-                    showStatus(`Auto-referred to ${response.referralCount} matching jobs!`, 'success');
+                    const message = response.message || `Auto-referred to ${response.referralCount} matching jobs!`;
+                    showStatus(message, 'success');
                 } else {
-                    showStatus('No matching jobs found or unable to process referrals', 'error');
+                    const errorMsg = response && response.error ? response.error : 'No matching jobs found or unable to process referrals';
+                    showStatus(errorMsg, 'error');
                 }
             });
         });
